@@ -2,6 +2,8 @@ import time
 import json
 import os
 from datetime import datetime
+from tqdm import tqdm
+
 
 
 from selenium import webdriver
@@ -13,10 +15,10 @@ from selenium.webdriver.chrome.options import Options
 
 
 data_source_file_path = "exhibitors_data/exhibitors.json"
+output_path = os.path.join(os.getcwd(), f"exhibitors_data/exhibitors_detailed_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.json")
 
 
 def scrape_exhibitors_information():
-    # 1) Start Selenium (Chrome in this example)
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-extensions")
@@ -25,24 +27,26 @@ def scrape_exhibitors_information():
     options.page_load_strategy = "eager"
 
     driver = webdriver.Chrome(options=options)
-    # driver = webdriver.Chrome()
     
     with open(data_source_file_path, "r", encoding="utf-8") as f:
         exhibitor_list = json.load(f)
     
     results = []
-    for item in exhibitor_list[:3]:
+    for item in tqdm(exhibitor_list[:100], desc="Processing", unit="item"):
         link = item.get("link")
-        # exibitor_activities = driver.find_element(By.CSS_SELECTOR, "div.sc-cJIyfF.cvMBHw")
+
+        print("--------------------")
+        print(link)
 
         try:
             driver.get(link)
-            time.sleep(20)
+            time.sleep(10)
 
             WebDriverWait(driver, 30).until(
                lambda d: d.execute_script("return document.readyState") == "complete"
                )
-
+            
+            # Company name
             try:
                 exibitor_name = WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, "h1.sc-guNwuy.crpMCq"))
@@ -59,7 +63,7 @@ def scrape_exhibitors_information():
             except:
                 exibitor_information = "No information found"
 
-
+            # Company activity
             try:
                 exibitor_activities = WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, "div.sc-cJIyfF.cvMBHw"))
@@ -68,6 +72,7 @@ def scrape_exhibitors_information():
             except:
                 exibitor_activities = "No activities found"
 
+            # Company thematic
             try:
                 thematic_section = WebDriverWait(driver, 20).until(
                 EC.presence_of_element_located(
@@ -81,7 +86,8 @@ def scrape_exhibitors_information():
                 thematic_section = thematic_section.text.strip()
             except:
                 thematic_section = "No thematic found"
-
+            
+            # Company country
             try:
                 country = WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located(
@@ -96,7 +102,7 @@ def scrape_exhibitors_information():
             except:
                 country = "No country found"
 
-
+            # Company contacts
             try:
                 contact_container = WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located(
@@ -106,36 +112,78 @@ def scrape_exhibitors_information():
                         )
                     )
                 )
-
-                # 4. Within that container, find each row of contact data
                 contact_rows = contact_container.find_elements(By.CSS_SELECTOR, "div.sc-eNSrOW.dySuYf")
                 contact_rows = [contact.text.strip() for contact in contact_rows]
 
             except:
                 contact_container = "No contacts found"
 
+            # Company members
+            try:
+                member_blocks = driver.find_elements(
+                    By.XPATH,
+                    "//div[@id='team']/following-sibling::div[contains(@class, 'sc-bJqjYt') and contains(@class, 'hifVOW')]"
+                )
 
-            print(f"############################")
-            print(exibitor_name)
-            print(contact_rows)
+                team_members = []
+                for block in member_blocks:
+                    try:
+                        name_el = block.find_element(By.CSS_SELECTOR, "span.sc-esYiGF.sc-dUYLmH.cBbmeX.cjPHDI")
+                        name = name_el.text.strip()
+                    except:
+                        name = "No name found"
 
-            results.append({
+                    try:
+                        position_el = block.find_element(By.CSS_SELECTOR, "span.sc-esYiGF.sc-cezyBN.cBbmeX.cQkxBs")
+                        position = position_el.text.strip()
+                    except:
+                        position = "No position found"
+
+                    try:
+                        company_el = block.find_element(By.CSS_SELECTOR, "span.sc-esYiGF.sc-fUkmAC.cBbmeX.fohyWG")
+                        company = company_el.text.strip()
+                    except:
+                        company = "No company found"
+                    
+                    team_members.append({
+                        "name": name,
+                        "position": position,
+                        "company": company
+                    })
+            except:
+                team_members = "No member found" 
+
+            # Social medials
+            try:
+                social_container = WebDriverWait(driver, 20).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "div.sc-jGONNV.gMaPYA"))
+                )
+
+                social_links = social_container.find_elements(By.TAG_NAME, "a")
+                social_links = [link.get_attribute("href") for link in social_links]
+            except:
+                social_links = "No social links found"
+
+                
+            exhibitor_information = {
                     "exibitor_name": exibitor_name,
                     "exibitor_information": exibitor_information,
                     "exibitor_activities": exibitor_activities,
                     "thematic_section": thematic_section,
-                    "contact_rows": contact_rows
-                })        
+                    "contact_rows": contact_rows,
+                    "team_members": team_members,
+                    "social_links": social_links
+                }
+            results.append(exhibitor_information)
+            
+            print(exhibitor_information)
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(results, f, ensure_ascii=False, indent=2)   
+
         except:
-            pass
+            print("Error occurred")
     
     driver.quit()
-    
-    # 6) Write everything to a JSON file in the same directory as this script
-    output_path = os.path.join(os.getcwd(), f"exhibitors_data/exhibitors_detailed_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.json")
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
-    print(f"Successfully saved {len(results)} entries to {output_path}")
 
 if __name__ == "__main__":
     scrape_exhibitors_information()
