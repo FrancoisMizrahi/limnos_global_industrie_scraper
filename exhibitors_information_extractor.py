@@ -33,7 +33,7 @@ def scrape_exhibitors_information():
     
     counter = 0
     results = []
-    for item in tqdm(exhibitor_list[:800], desc="Processing", unit="item"):
+    for item in tqdm(exhibitor_list[630:1000], desc="Processing", unit="item"):
         link = item.get("link")
 
         print("--------------------")
@@ -175,7 +175,8 @@ def scrape_exhibitors_information():
                     "thematic_section": thematic_section,
                     "contact_rows": contact_rows,
                     "team_members": team_members,
-                    "social_links": social_links
+                    "social_links": social_links,
+                    "link": link
                 }
             results.append(exhibitor_information)
             counter += 1
