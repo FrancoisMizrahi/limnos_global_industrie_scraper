@@ -31,8 +31,9 @@ def scrape_exhibitors_information():
     with open(data_source_file_path, "r", encoding="utf-8") as f:
         exhibitor_list = json.load(f)
     
+    counter = 0
     results = []
-    for item in tqdm(exhibitor_list[:100], desc="Processing", unit="item"):
+    for item in tqdm(exhibitor_list[:800], desc="Processing", unit="item"):
         link = item.get("link")
 
         print("--------------------")
@@ -40,7 +41,7 @@ def scrape_exhibitors_information():
 
         try:
             driver.get(link)
-            time.sleep(10)
+            time.sleep(15)
 
             WebDriverWait(driver, 30).until(
                lambda d: d.execute_script("return document.readyState") == "complete"
@@ -166,6 +167,8 @@ def scrape_exhibitors_information():
 
                 
             exhibitor_information = {
+                    "index": counter,
+                    "timestamp": datetime.now().strftime('%Y-%m-%d_%H:%M:%S'),
                     "exibitor_name": exibitor_name,
                     "exibitor_information": exibitor_information,
                     "exibitor_activities": exibitor_activities,
@@ -175,6 +178,7 @@ def scrape_exhibitors_information():
                     "social_links": social_links
                 }
             results.append(exhibitor_information)
+            counter += 1
             
             print(exhibitor_information)
             with open(output_path, "w", encoding="utf-8") as f:
