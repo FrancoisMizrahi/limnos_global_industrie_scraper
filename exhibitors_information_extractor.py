@@ -31,9 +31,10 @@ def scrape_exhibitors_information():
     with open(data_source_file_path, "r", encoding="utf-8") as f:
         exhibitor_list = json.load(f)
     
-    counter = 0
+    min_counter = 722
+
     results = []
-    for item in tqdm(exhibitor_list[630:1000], desc="Processing", unit="item"):
+    for item in tqdm(exhibitor_list[min_counter:1000], desc="Processing", unit="item"):
         link = item.get("link")
 
         print("--------------------")
@@ -167,7 +168,7 @@ def scrape_exhibitors_information():
 
                 
             exhibitor_information = {
-                    "index": counter,
+                    "index": min_counter,
                     "timestamp": datetime.now().strftime('%Y-%m-%d_%H:%M:%S'),
                     "exibitor_name": exibitor_name,
                     "exibitor_information": exibitor_information,
@@ -179,7 +180,7 @@ def scrape_exhibitors_information():
                     "link": link
                 }
             results.append(exhibitor_information)
-            counter += 1
+            min_counter += 1
             
             print(exhibitor_information)
             with open(output_path, "w", encoding="utf-8") as f:
