@@ -29,7 +29,7 @@ def scrape_exhibitors_information():
     with open(data_source_file_path, "r", encoding="utf-8") as f:
         exhibitor_list = json.load(f)
     
-    min_counter = 1960
+    min_counter = 2189
 
     results = []
     for item in tqdm(exhibitor_list[min_counter:], desc="Processing", unit="item"):
