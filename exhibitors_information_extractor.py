@@ -29,13 +29,13 @@ def scrape_exhibitors_information():
     with open(data_source_file_path, "r", encoding="utf-8") as f:
         exhibitor_list = json.load(f)
     
-    min_counter = 1166
+    min_counter = 1960
 
     results = []
-    for item in tqdm(exhibitor_list[min_counter:2000], desc="Processing", unit="item"):
+    for item in tqdm(exhibitor_list[min_counter:], desc="Processing", unit="item"):
         link = item.get("link")
 
-        print("--------------------")
+        print("\n------------------------------------------------------------")
         print(link)
 
         try:
@@ -55,6 +55,7 @@ def scrape_exhibitors_information():
             except:
                 exibitor_name = "No name found"
             print(exibitor_name)
+            print("------------------------------------------------------------")
 
             try:
                 exibitor_information = WebDriverWait(driver, 20).until(
@@ -64,6 +65,7 @@ def scrape_exhibitors_information():
             except:
                 exibitor_information = "No information found"
             print(exibitor_information)
+            print("------------------------------------------------------------")
             
             # Company activity
             try:
@@ -74,6 +76,7 @@ def scrape_exhibitors_information():
             except:
                 exibitor_activities = "No activities found"
             print(exibitor_activities)
+            print("------------------------------------------------------------")
             
             # Company thematic
             try:
@@ -90,6 +93,7 @@ def scrape_exhibitors_information():
             except:
                 thematic_section = "No thematic found"
             print(thematic_section)
+            print("------------------------------------------------------------")
             
             # Company country
             try:
@@ -106,6 +110,7 @@ def scrape_exhibitors_information():
             except:
                 country = "No country found"
             print(country)
+            print("------------------------------------------------------------")
             
             # Company contacts
             try:
@@ -123,6 +128,7 @@ def scrape_exhibitors_information():
             except:
                 contact_rows = "No contacts found"
             print(contact_rows)
+            print("------------------------------------------------------------")
             
             # Company members
             try:
@@ -159,7 +165,8 @@ def scrape_exhibitors_information():
             except:
                 team_members = "No member found" 
             print(team_members)
-            
+            print("------------------------------------------------------------")
+
             # Social medials
             try:
                 social_container = WebDriverWait(driver, 20).until(
@@ -171,7 +178,7 @@ def scrape_exhibitors_information():
             except:
                 social_links = "No social links found"
             print(social_links)
-            
+            print("------------------------------------------------------------")
                 
             exhibitor_information = {
                     "index": min_counter,
@@ -193,6 +200,7 @@ def scrape_exhibitors_information():
                 json.dump(results, f, ensure_ascii=False, indent=2)   
             e = time.process_time() # end time
             print(f"file saved in {e - s} seconds")
+            print("###########################################################\n")
 
         except:
             print("Error occurred")
