@@ -29,14 +29,11 @@ def scrape_exhibitors_information():
     with open(data_source_file_path, "r", encoding="utf-8") as f:
         exhibitor_list = json.load(f)
     
-    min_counter = 2189
+    min_counter = 2276
 
     results = []
     for item in tqdm(exhibitor_list[min_counter:], desc="Processing", unit="item"):
         link = item.get("link")
-
-        print("\n------------------------------------------------------------")
-        print(link)
 
         try:
             driver.get(link)
@@ -54,8 +51,6 @@ def scrape_exhibitors_information():
                 exibitor_name = exibitor_name.text.strip()
             except:
                 exibitor_name = "No name found"
-            print(exibitor_name)
-            print("------------------------------------------------------------")
 
             try:
                 exibitor_information = WebDriverWait(driver, 20).until(
@@ -64,8 +59,6 @@ def scrape_exhibitors_information():
                 exibitor_information = exibitor_information.text.strip()
             except:
                 exibitor_information = "No information found"
-            print(exibitor_information)
-            print("------------------------------------------------------------")
             
             # Company activity
             try:
@@ -75,8 +68,6 @@ def scrape_exhibitors_information():
                 exibitor_activities = exibitor_activities.text.strip()
             except:
                 exibitor_activities = "No activities found"
-            print(exibitor_activities)
-            print("------------------------------------------------------------")
             
             # Company thematic
             try:
@@ -92,8 +83,6 @@ def scrape_exhibitors_information():
                 thematic_section = thematic_section.text.strip()
             except:
                 thematic_section = "No thematic found"
-            print(thematic_section)
-            print("------------------------------------------------------------")
             
             # Company country
             try:
@@ -109,8 +98,6 @@ def scrape_exhibitors_information():
                 country = country.text.strip()
             except:
                 country = "No country found"
-            print(country)
-            print("------------------------------------------------------------")
             
             # Company contacts
             try:
@@ -127,8 +114,6 @@ def scrape_exhibitors_information():
 
             except:
                 contact_rows = "No contacts found"
-            print(contact_rows)
-            print("------------------------------------------------------------")
             
             # Company members
             try:
@@ -164,8 +149,6 @@ def scrape_exhibitors_information():
                     })
             except:
                 team_members = "No member found" 
-            print(team_members)
-            print("------------------------------------------------------------")
 
             # Social medials
             try:
@@ -177,8 +160,6 @@ def scrape_exhibitors_information():
                 social_links = [link.get_attribute("href") for link in social_links]
             except:
                 social_links = "No social links found"
-            print(social_links)
-            print("------------------------------------------------------------")
                 
             exhibitor_information = {
                     "index": min_counter,
@@ -195,12 +176,8 @@ def scrape_exhibitors_information():
             results.append(exhibitor_information)
             min_counter += 1
             
-            s = time.process_time() # start time
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(results, f, ensure_ascii=False, indent=2)   
-            e = time.process_time() # end time
-            print(f"file saved in {e - s} seconds")
-            print("###########################################################\n")
 
         except:
             print("Error occurred")
