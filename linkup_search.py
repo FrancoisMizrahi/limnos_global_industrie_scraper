@@ -136,11 +136,13 @@ def update_members_page_with_linkedin(results):
 
 if __name__ == "__main__":
     tic = time.time()
-    profiles = prep_linkup_data(people_pages[2000:])
-    results = parallel_linkedin_search(profiles)
-    with open('exhibitors_data//profiles_linkup_enhanced.json', 'w') as fp:
-        json.dump(results, fp)
-    # update_members_page_with_linkedin(results)
+    # profiles = prep_linkup_data(people_pages)
+    # results = parallel_linkedin_search(profiles)
+    # with open('exhibitors_data/profiles_linkup_enhanced.json', 'w') as fp:
+    #     json.dump(results, fp)
+    with open('exhibitors_data/profiles_linkup_enhanced_full.json') as f:
+        results = json.load(f)
+    update_members_page_with_linkedin(results[:50])
     toc = time.time()
     print(toc - tic)
 
