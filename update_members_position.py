@@ -1,7 +1,10 @@
 import os
 import requests
 import json
+import time
+from tqdm import tqdm
 import openai
+
 
 
 openai_api_key = os.environ['openai_api_key']
@@ -75,7 +78,7 @@ client = openai.Client(api_key=openai_api_key)
 def generate_text_with_gpt4(role):
     """Generates text using the GPT-4 model."""
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are a helpful B2B sales assistant that classifies positions correctly."},
             {"role": "assistant", "content": f"The different positions possible are the following: {b2b_roles}"},
@@ -110,19 +113,25 @@ def update_member_page(page_id, existing_positions, clean_positions):
 
 
 def update_members_positions(people_pages):
-  for page in people_pages:
+  start_point = 372
+  for page in tqdm(people_pages[start_point:], desc="Processing"):
+    print(f"Page: {start_point}")
     page_id = page["id"]
     
     existing_positions = []
     clean_positions = []
-
     for position in page["properties"]["Position"]["multi_select"]:
       existing_positions.append(position["name"])
       clean_position = generate_text_with_gpt4(position["name"])
-      print(f"chatGPT: {clean_position} - original: {position['name']}")
       clean_positions.append(clean_position)
 
     update_member_page(page_id, existing_positions, clean_positions)
+    print(f"{page["properties"]["Name"]["title"][0]["text"]["content"]}")
+    start_point += 1
 
 
-update_members_positions(people_pages[:20])
+tic = time.time()
+update_members_positions(people_pages)
+toc = time.time()
+
+print(toc - tic)
