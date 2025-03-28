@@ -142,7 +142,7 @@ if __name__ == "__main__":
     #     json.dump(results, fp)
     with open('exhibitors_data/profiles_linkup_enhanced_full.json') as f:
         results = json.load(f)
-    update_members_page_with_linkedin(results[:50])
+    update_members_page_with_linkedin(results[1000:])
     toc = time.time()
     print(toc - tic)
 
