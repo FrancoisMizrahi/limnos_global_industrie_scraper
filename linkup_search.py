@@ -102,26 +102,26 @@ def parallel_linkedin_search(profiles: List[Dict[str, str]], max_workers: int = 
 
 
 def update_member_page_with_linkedin(result):
-  updated_properties = {
-      "LinkedIn URL": {"url": result["LinkedIn"] if result["LinkedIn"] else None},
-      }
+    updated_properties = {
+        "LinkedIn URL": {"url": result["LinkedIn"] if result["LinkedIn"] else None},
+        }
 
-  url = f"https://api.notion.com/v1/pages/{result['id']}"
-  headers = {
-      "Authorization": f"Bearer {notion_token}",
-      "Content-Type": "application/json",
-      "Notion-Version": "2022-06-28"
-  }
+    url = f"https://api.notion.com/v1/pages/{result['id']}"
+    headers = {
+        "Authorization": f"Bearer {notion_token}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28"
+    }
 
-  payload = {"properties": updated_properties}
+    payload = {"properties": updated_properties}
 
-  response = requests.patch(url, headers=headers, data=json.dumps(payload))
+    response = requests.patch(url, headers=headers, data=json.dumps(payload))
 
-  if response.status_code == 200:
-    pass
-  else:
-      print(f"Failed to update. Status: {response.status_code}")
-      print(response.text)
+    if response.status_code == 200:
+        pass
+    else:
+        print(f"Failed to update. Status: {response.status_code}")
+        print(response.text)
 
 
 def update_members_page_with_linkedin(results):
